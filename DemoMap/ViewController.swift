@@ -9,7 +9,7 @@
 import UIKit
 import MapKit
 
-class ViewController: UIViewController, CLLocationManagerDelegate {
+class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
 
     @IBOutlet weak var mapView: MKMapView!
     var locationManager = CLLocationManager();
@@ -22,6 +22,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters
         locationManager.requestAlwaysAuthorization()
         locationManager.startUpdatingLocation()
+        
+        mapView.delegate = self
         
         //Show user's location
         mapView.showsUserLocation = true;
@@ -38,7 +40,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             longitude = (currentLocation?.longitude)!
         }
         
-        let annotation = CustomAnnotation(title: "Pascalia Asia", subtitle: "Nguyen Huu Canh, Binh Thanh, HCM", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
+        let annotation = CustomAnnotation(title: "Pascalia Asia", subtitle: "Nguyen Huu Canh, Binh Thanh, HCM", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), image: UIImage(named: "hotel")!)
         
         //add annotation into mapView
         mapView.addAnnotation(annotation)
@@ -51,6 +53,29 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
         //Display current location on map
         mapView.setRegion(region, animated: true)
+        
+        //Stop auto focus current location
+        locationManager.startUpdatingLocation()
+    }
+    
+    func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
+        if let myAnnotation = annotation as? CustomAnnotation{
+            var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: "CustomPinAnnotationView")
+            if pinView == nil {
+                pinView = MKAnnotationView(annotation: myAnnotation, reuseIdentifier: "CustomPinAnnotationView")
+                pinView?.rightCalloutAccessoryView = UIButton(type: .detailDisclosure)
+                pinView?.canShowCallout = true
+                pinView?.calloutOffset = CGPoint(x: 0, y: 4)
+                pinView?.contentMode = .scaleAspectFill
+            } else {
+                pinView?.annotation = annotation
+            }
+            pinView?.image = myAnnotation.image
+            
+            return pinView
+        }
+        
+        return nil
     }
 
     override func didReceiveMemoryWarning() {
