@@ -29,8 +29,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         //get current location
         let currentLocation = locationManager.location?.coordinate
         
-        //create annotation
-        let annotation = CustomAnnotation(title: "Pascalia Asia", subtitle: "180/54 Nguyen Huu Canh, Ward 22, Binh Thanh District, Ho Chi Minh City", coordinate: CLLocationCoordinate2D(latitude: (currentLocation?.latitude)!, longitude: (currentLocation?.longitude)!))
+        var latitude: Double = 10.793235
+        var longitude: Double = 106.719856
+        
+        if(currentLocation != nil){
+            //create annotation
+            latitude = (currentLocation?.latitude)!
+            longitude = (currentLocation?.longitude)!
+        }
+        
+        let annotation = CustomAnnotation(title: "Pascalia Asia", subtitle: "Nguyen Huu Canh, Binh Thanh, HCM", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude))
         
         //add annotation into mapView
         mapView.addAnnotation(annotation)
