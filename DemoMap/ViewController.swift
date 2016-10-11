@@ -89,6 +89,54 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         
         //add annotation into mapView
         mapView.addAnnotations(annotationArray)
+        
+        //Draw line
+        drawLineTwoLocations(sourceLocation: myFakeLocation, destinationLocation: destinationLocation)
+    }
+    
+    func drawLineTwoLocations(sourceLocation: CLLocationCoordinate2D, destinationLocation: CLLocationCoordinate2D){
+        
+        //Step 1
+        let sourcePlacemark = MKPlacemark(coordinate: sourceLocation, addressDictionary: nil)
+        let destinationPlacemark = MKPlacemark(coordinate: destinationLocation, addressDictionary: nil)
+        
+        //Step 2
+        let sourceMapItem = MKMapItem(placemark: sourcePlacemark)
+        let destinationMapItem = MKMapItem(placemark: destinationPlacemark)
+        
+        //Step 3
+        let directRequest = MKDirectionsRequest()
+        directRequest.source = sourceMapItem
+        directRequest.destination = destinationMapItem
+        directRequest.transportType = .walking
+        
+        //Step 4
+        let directions = MKDirections(request: directRequest)
+        directions.calculate { (response, error) in
+            if error == nil {
+                //Sometimes there is not route between 2 point in map
+                if let route = response?.routes.first {
+                    
+                    self.mapView.add(route.polyline, level: .aboveRoads)
+                    
+                    //Auto zoom map after search
+                    let rect = route.polyline.boundingMapRect
+                    self.mapView.setVisibleMapRect(rect, edgePadding: UIEdgeInsetsMake(40, 40, 20, 20), animated: true)
+                }
+            } else {
+                print("There is a error: ")
+                print(error?.localizedDescription)
+            }
+        }
+    }
+    
+    func mapView(_ mapView: MKMapView, rendererFor overlay: MKOverlay) -> MKOverlayRenderer {
+        let rederer = MKPolylineRenderer(overlay: overlay)
+        
+        rederer.strokeColor = UIColor.blue
+        rederer.lineWidth = 2.0
+        
+        return rederer
     }
 
     override func didReceiveMemoryWarning() {
