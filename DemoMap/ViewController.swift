@@ -13,6 +13,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
 
     @IBOutlet weak var mapView: MKMapView!
     var locationManager = CLLocationManager();
+    var annotationArray: [CustomAnnotation] = [CustomAnnotation]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -28,22 +29,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         //Show user's location
         mapView.showsUserLocation = true;
         
-        //get current location
-        let currentLocation = locationManager.location?.coordinate
-        
-        var latitude: Double = 10.793235
-        var longitude: Double = 106.719856
-        
-        if(currentLocation != nil){
-            //create annotation
-            latitude = (currentLocation?.latitude)!
-            longitude = (currentLocation?.longitude)!
-        }
-        
-        let annotation = CustomAnnotation(title: "Pascalia Asia", subtitle: "Nguyen Huu Canh, Binh Thanh, HCM", coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude), image: UIImage(named: "hotel")!)
-        
-        //add annotation into mapView
-        mapView.addAnnotation(annotation)
+        //Add all annotation on mapView
+        self.addAnnotationsOnMapView()
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -55,7 +42,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         mapView.setRegion(region, animated: true)
         
         //Stop auto focus current location
-        locationManager.startUpdatingLocation()
+        locationManager.stopUpdatingLocation()
     }
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
@@ -76,6 +63,32 @@ class ViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDele
         }
         
         return nil
+    }
+    
+    func addAnnotationsOnMapView(){
+        //get current location
+        let currentLocation = locationManager.location?.coordinate
+        
+        let myFakeLocation = CLLocationCoordinate2D(latitude: 10.793235, longitude: 106.719856)
+        let destinationLocation = CLLocationCoordinate2D(latitude: 10.803255, longitude: 106.837952)
+        
+        var sourceAnnotation: CustomAnnotation
+        
+        if(currentLocation != nil){
+            //create annotation
+            sourceAnnotation = CustomAnnotation(title: "Pascalia Asia", subtitle: "Nguyen Huu Canh, Binh Thanh, HCM", coordinate: currentLocation!, image: UIImage(named: "hotel")!)
+        } else {
+            sourceAnnotation = CustomAnnotation(title: "Pascalia Asia", subtitle: "Nguyen Huu Canh, Binh Thanh, HCM", coordinate: myFakeLocation, image: UIImage(named: "hotel")!)
+        }
+        
+        
+        let destinationAnnotation = CustomAnnotation(title: "The BCR", subtitle: "191 Tam Đa, W.Truong Thanh, D9. Hotline: 094 6664 616, 0903 038 100", coordinate: destinationLocation, image: UIImage(named: "hotel")!)
+        
+        self.annotationArray.append(sourceAnnotation)
+        self.annotationArray.append(destinationAnnotation)
+        
+        //add annotation into mapView
+        mapView.addAnnotations(annotationArray)
     }
 
     override func didReceiveMemoryWarning() {
